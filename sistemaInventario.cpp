@@ -21,7 +21,7 @@ void titulo() {
 }
 
 void pausar() {
-    cout << "\n\nPresiona ENTER para continuar...";
+    cout << "\nPresiona ENTER para continuar...";
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cin.get();
 }
@@ -63,7 +63,7 @@ void insertionSort(NodoProductos* arrLista[], int tam) {
     }
 }
 
-NodoProductos* buscarPorCodigo(NodoProductos* cab, int vCodigo) {
+NodoProductos* codigoRepetido(NodoProductos* cab, int vCodigo) {
     if (cab == NULL) return NULL;
     NodoProductos* actual = cab;
 
@@ -180,6 +180,14 @@ void buscarPorNombre(NodoProductos* cab) {
         cout << "No se encontró el producto: " << buscar << endl;
 }
 
+void buscarPorCodigo () { //-> FALTA CREAR FUNCION
+
+}
+
+void eliminarProductor () { //-> FALTA CREAR FUNCION
+
+}
+
 void insertarProducto (NodoProductos *&cab, int vCodigo, string vNombre, double vPrecio, int vStock, NodoProductos *&cola) {
     NodoProductos *nuevo = new NodoProductos();
     nuevo -> codigo = vCodigo;
@@ -258,9 +266,9 @@ void mostrarInventario(NodoProductos* cab) {
 
     //cout << "\n===== INVENTARIO =====" << endl;
     cout << left
-         << setw(10) << "Código"
+         << setw(11) << "Código"
          << setw(20) << "Nombre"
-         << setw(10) << "Precio"
+         << setw(12) << "Precio"
          << setw(10) << "Stock" << endl;
     cout << string(50, '-') << endl;
 
@@ -268,7 +276,7 @@ void mostrarInventario(NodoProductos* cab) {
         cout << left
              << setw(10) << actual->codigo
              << setw(20) << actual->nombre
-             << setw(10) << actual->precio
+             <<"S/."<< setw(10) << actual->precio
              << setw(10) << actual->stock << endl;
 
         actual = actual->next;
@@ -292,7 +300,6 @@ void actualizarProducto (NodoProductos *&cab, NodoProductos *&codigoRep, int vCo
             cout<<"No se actualizó producto"<<endl;
         }
 }
-
 
 void quickSort(NodoProductos* arrLista[], int inicio, int fin) {
     if (inicio < fin) {
@@ -417,6 +424,10 @@ void ordenarStock(NodoProductos *&cab) {
     mostrarArreglo(arrLista, tam);
 }
 
+void historialMoimientos () { //-> FALTA CREAR FUNCION
+
+}
+
 int main() {
     titulo();
     int optMenu, optInventario;
@@ -437,7 +448,8 @@ int main() {
         cout<<" 3. Ingresar Producto"<<endl;
         cout<<" 4. Buscar Producto"<<endl;
         cout<<" 5. Eliminar Producto"<<endl;
-        cout<<" 6. Salir"<<endl;
+        cout<<" 6. Historial de Movimientos"<<endl;
+        cout<<" 7. Salir"<<endl;
         cout<<endl<<"-> Elija una opcion: "; cin>>optMenu;
 
         switch (optMenu)
@@ -445,6 +457,7 @@ int main() {
         case 1: //Ver Inventario
             titulo();
             cout<<"=== Ver Inventario ==="<<endl;
+            //Colocar aqui la funcion buscarPorCodigo
             mostrarInventario(cab);
             pausar();
             break;
@@ -488,7 +501,7 @@ int main() {
                 cout<<"=== Ingresar Producto ==="<<endl;
                 cout<<" Código de producto: "; cin>>vCodigo;
                 
-                NodoProductos *codigoRep = buscarPorCodigo(cab, vCodigo);
+                NodoProductos *codigoRep = codigoRepetido(cab, vCodigo);
                 if (codigoRep != NULL) {
                     actualizarProducto(cab, codigoRep, vCodigo, vStock);
                     //continue;
@@ -519,7 +532,7 @@ int main() {
                 {
                 case 1: //Buscar por código
                     titulo();
-                    ordenarPrecio(cab);
+                    //Aqui va la funcion buscarPorCodigo;
                     pausar();
                     break;
                 case 2: //Buscar por stock
@@ -535,16 +548,34 @@ int main() {
                 default:
                     break;
                 }
-                //pausar();
             } while (optInventario != 4);
             
             break;
+
+        case 5: //Eliminar Producto
+            titulo();
+            //Aqui va la funcion eliminarProducto
+            pausar();
+            break;
+
+        case 6: //Historial de movimiento
+            titulo();
+            //Aqui va la funcion historialMovimiento
+            pausar();
+            break;
+        
+        case 7: //salir
+            cout<<"Saliendo del programa..."<<endl;
+            pausar();
+
+            break;
         
         default:
+            cout<<"Opción incorrecta..."<<endl;
+            pausar();
             break;
         }
-    } while (optMenu != 6
-    );
+    } while (optMenu != 7);
     
 
     return 0;

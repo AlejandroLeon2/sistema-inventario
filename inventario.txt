@@ -4,3 +4,5 @@
 109 Andamio 540 2
 105 Tablet 640 2
 104 Laptop 1980 5
+106 mouse 120 12
+112 parlante 35 15
