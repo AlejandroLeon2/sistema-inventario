@@ -388,6 +388,10 @@ void mostrarArreglo(NodoProductos* arrLista[], int cantidad) {
 
 }
 
+void ordernarPorCodigo() { //->FALTA CREAR FUNCION
+
+}
+
 void ordenarPrecio(NodoProductos *&cab) { //Quick Sort
     if (cab == NULL) {
         cout << "Lista vacía." << endl;
@@ -400,7 +404,7 @@ void ordenarPrecio(NodoProductos *&cab) { //Quick Sort
     mostrarArreglo(arrLista, tam);
 }
 
-void ordenarNombre(NodoProductos *&cab) {
+void ordenarNombre(NodoProductos *&cab) { //Insertion Sort
     if (cab == NULL) {
         cout << "Lista vacía." << endl;
         return;
@@ -412,7 +416,7 @@ void ordenarNombre(NodoProductos *&cab) {
     mostrarArreglo(arrLista, tam);
 }
 
-void ordenarStock(NodoProductos *&cab) {
+void ordenarStock(NodoProductos *&cab) { //Merge Sort
     if (cab == NULL) {
         cout << "Lista vacía." << endl;
         return;
@@ -457,7 +461,7 @@ int main() {
         case 1: //Ver Inventario
             titulo();
             cout<<"=== Ver Inventario ==="<<endl;
-            //Colocar aqui la funcion buscarPorCodigo
+            //Colocar aqui la funcion ordenarPorCodigo
             mostrarInventario(cab);
             pausar();
             break;
