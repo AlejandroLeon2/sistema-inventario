@@ -1,0 +1,6 @@
+101 Mesa 62.5 6
+102 Silla 12.5 60
+103 armario 152 6
+109 Andamio 540 2
+105 Tablet 640 2
+104 Laptop 1980 5
