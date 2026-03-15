@@ -14,6 +14,9 @@ struct NodoProductos {
     NodoProductos *next;
 };
 
+
+void reescribirArchivo(NodoProductos* cab);
+
 void titulo() {
     setlocale(LC_ALL, "es_ES.UTF-8");
     system("cls");
@@ -184,8 +187,59 @@ void buscarPorCodigo () { //-> FALTA CREAR FUNCION
 
 }
 
-void eliminarProductor () { //-> FALTA CREAR FUNCION
+void eliminarProducto(NodoProductos*& cab, NodoProductos*& cola) {
 
+    if (cab == NULL) {
+        cout << "Lista vacía." << endl;
+        return;
+    }
+
+    int codigoEliminar;
+    cout << "Ingrese el código del producto a eliminar: ";
+    cin >> codigoEliminar;
+
+    NodoProductos* actual = cab;
+    NodoProductos* anterior = cola;
+
+    do {
+
+        if (actual->codigo == codigoEliminar) {
+
+            if (cab == cola) { // solo un nodo
+                delete actual;
+                cab = NULL;
+                cola = NULL;
+            }
+
+            else if (actual == cab) { // eliminar primero
+                cab = cab->next;
+                cola->next = cab;
+                delete actual;
+            }
+
+            else if (actual == cola) { // eliminar último
+                anterior->next = cab;
+                cola = anterior;
+                delete actual;
+            }
+
+            else { // eliminar intermedio
+                anterior->next = actual->next;
+                delete actual;
+            }
+
+            reescribirArchivo(cab);
+
+            cout << "Producto eliminado correctamente." << endl;
+            return;
+        }
+
+        anterior = actual;
+        actual = actual->next;
+
+    } while (actual != cab);
+
+    cout << "Producto no encontrado." << endl;
 }
 
 void insertarProducto (NodoProductos *&cab, int vCodigo, string vNombre, double vPrecio, int vStock, NodoProductos *&cola) {
@@ -558,7 +612,7 @@ int main() {
 
         case 5: //Eliminar Producto
             titulo();
-            //Aqui va la funcion eliminarProducto
+            eliminarProducto(cab, cola);
             pausar();
             break;
 
