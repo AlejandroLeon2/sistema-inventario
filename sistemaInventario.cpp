@@ -3,6 +3,8 @@
 #include <iomanip>
 #include <fstream>
 #include <limits>
+#include <ctime>
+#include <sstream>
 
 using namespace std;
 
@@ -16,6 +18,29 @@ struct NodoProductos {
 
 
 void reescribirArchivo(NodoProductos* cab);
+void registrarMovimiento(int codigo, string nombre, string tipo, int cantidad);
+
+string obtenerFechaHora() {
+    time_t now = time(0);
+    struct tm tstruct;
+    char buf[80];
+    tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%Y-%m-%d %X", &tstruct);
+    return string(buf);
+}
+
+void registrarMovimiento(int codigo, string nombre, string tipo, int cantidad) {
+    ofstream archivo("historial.txt", ios::app);
+    if (archivo.is_open()) {
+        archivo << obtenerFechaHora() << " | " 
+                << left << setw(10) << tipo << " | "
+                << setw(8) << codigo << " | "
+                << setw(20) << nombre << " | "
+                << "Cant: " << cantidad << endl;
+        archivo.close();
+    }
+}
+
 
 void titulo() {
     setlocale(LC_ALL, "es_ES.UTF-8");
@@ -125,7 +150,8 @@ void buscarPorNombre(NodoProductos* cab) { //Busqueda Binaria
     }
     string buscar;
     cout << "Ingrese el nombre a buscar: ";
-    getline(cin, buscar); cin.ignore(); 
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    getline(cin, buscar); 
 
     buscar = aMinusculas(buscar);
     NodoProductos* arrLista[100];
@@ -348,8 +374,13 @@ void actualizarProducto (NodoProductos *&cab, NodoProductos *&codigoRep, int vCo
         //cout<<" Nombre: "<<codigoRep -> nombre<<"; Precio: S/."<<codigoRep -> precio<<"; Cantidad: "<<codigoRep -> stock<<endl;
         cout<<endl<<"¿Desea actualizar el stock? (s/n): "; cin>>optSiNo;
         if (optSiNo == 's' || optSiNo == 'S') {
-            cout<<"¿Cuántas unidades de "<<codigoRep -> nombre<<" desea agregar?: "; cin>>vStock;
-            codigoRep -> stock += vStock;
+            int cantidad;
+            cout<<"¿Cuántas unidades de "<<codigoRep -> nombre<<" desea agregar/quitar? (use negativo para quitar): "; cin>>cantidad;
+            codigoRep -> stock += cantidad;
+            
+            string tipo = (cantidad >= 0) ? "ENTRADA" : "SALIDA";
+            registrarMovimiento(codigoRep->codigo, codigoRep->nombre, tipo, (cantidad >= 0 ? cantidad : -cantidad));
+
             cout<<endl<<"** Producto Actualizado **"<<endl;
             cout << left << setw(11) << "Código" << setw(20) << "Nombre" << setw(12) << "Precio" << setw(10) << "Stock" << endl;
             cout << left << setw(10) << codigoRep -> codigo << setw(20) << codigoRep -> nombre <<"S/."<< setw(10) << codigoRep -> precio << setw(10) << codigoRep -> stock << endl;
@@ -359,6 +390,7 @@ void actualizarProducto (NodoProductos *&cab, NodoProductos *&codigoRep, int vCo
             cout<<"No se actualizó producto"<<endl;
         }
 }
+
 
 void quickSort(NodoProductos* arrLista[], int inicio, int fin) {
     if (inicio < fin) {
@@ -521,9 +553,28 @@ void ordenarStock(NodoProductos *&cab) { //Merge Sort
     mostrarArreglo(arrLista, tam);
 }
 
-void historialMoimientos () { //-> FALTA CREAR FUNCION
+void historialMovimientos() { 
+    ifstream archivo("historial.txt");
+    if (!archivo.is_open()) {
+        cout << "No hay historial de movimientos registrado." << endl;
+        return;
+    }
 
+    cout << "=== HISTORIAL DE MOVIMIENTOS ===" << endl;
+    cout << left << setw(20) << "Fecha y Hora" << " | "
+         << setw(10) << "Tipo" << " | "
+         << setw(8) << "Código" << " | "
+         << setw(20) << "Nombre" << " | "
+         << "Cantidad" << endl;
+    cout << string(80, '-') << endl;
+
+    string linea;
+    while (getline(archivo, linea)) {
+        cout << linea << endl;
+    }
+    archivo.close();
 }
+
 
 int main() {
     titulo();
@@ -603,12 +654,14 @@ int main() {
                     actualizarProducto(cab, codigoRep, vCodigo, vStock);
                     //continue;
                 } else {
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     cout<<" Nombre de producto: ";
-                    getline(cin, vNombre); cin.ignore(); 
+                    getline(cin, vNombre); 
                     cout<<" Precio de producto: "; cin>>vPrecio;
                     cout<<" Cantidad de producto: "; cin>>vStock;
                     insertarProducto(cab, vCodigo, vNombre, vPrecio, vStock, cola);
                     guardarArchivo(vCodigo, vNombre, vPrecio, vStock);
+                    registrarMovimiento(vCodigo, vNombre, "ENTRADA", vStock);
                     cout<<"** Producto agregado correctamente **"<<endl;
                    // cout<<"Código: "<<vCodigo<<"; Nombre: "<<vNombre<<"; Precio: S/."<<vPrecio<<"; Cantidad: "<<vStock<<endl;
                     cout << left << setw(11) << "Código" << setw(20) << "Nombre" << setw(12) << "Precio" << setw(10) << "Stock" << endl;
@@ -661,7 +714,7 @@ int main() {
 
         case 6: //Historial de movimiento
             titulo();
-            //Aqui va la funcion historialMovimiento
+            historialMovimientos();
             pausar();
             break;
         
