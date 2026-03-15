@@ -171,8 +171,55 @@ void buscarPorNombre(NodoProductos* cab) { //Busqueda Binaria
         cout << "No se encontró el producto: " << buscar << endl;
 }
 
-void buscarPorCodigo () { //-> FALTA CREAR FUNCION
 
+void buscarPorCodigo(NodoProductos* cab) {
+
+    //Verificar si la lista está vacía
+    if (cab == NULL) {
+        cout << "Lista vacía." << endl;
+        return;
+    }
+
+    int codigoBuscar;
+    cout << "Ingrese el código a buscar: ";
+    cin >> codigoBuscar;
+
+    //puntero para recorrer la lista
+    NodoProductos* actual = cab;
+    bool encontrado = false; 
+
+    do {
+        if (actual->codigo == codigoBuscar) {
+
+            cout << "\n** Producto encontrado **" << endl;
+            cout << left
+                 << setw(10) << "Código"
+                 << setw(20) << "Nombre"
+                 << setw(10) << "Precio"
+                 << setw(10) << "Stock" << endl;
+
+            cout << string(50, '-') << endl;
+
+            cout << left
+                 << setw(10) << actual->codigo
+                 << setw(20) << actual->nombre
+                 << setw(10) << actual->precio
+                 << setw(10) << actual->stock << endl;
+
+            encontrado = true;
+            break;
+        }
+
+        //Avanzar al siguiente nodo
+        actual = actual->next;
+
+    } while (actual != cab); 
+
+    //Si no se encontró mostramos..
+    if (!encontrado) {
+        cout << "No se encontró el producto con código: "
+             << codigoBuscar << endl;
+    }
 }
 
 void eliminarProducto(NodoProductos*& cab, NodoProductos*& cola) {
@@ -633,7 +680,7 @@ int main() {
                 {
                 case 1: //Buscar por código
                     titulo();
-                    //Aqui va la funcion buscarPorCodigo;
+                    buscarPorCodigo(cab);
                     pausar();
                     break;
                 case 2: //Buscar por stock
