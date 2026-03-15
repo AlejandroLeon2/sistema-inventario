@@ -6,3 +6,5 @@
 104 Laptop 1980 5
 106 mouse 120 12
 112 parlante 35 15
+1 cama 200 3
+3 lentes 256 6
