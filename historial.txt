@@ -1,0 +1,4 @@
+2026-03-15 18:24:17 | ENTRADA    | 123      | cama                 | Cant: 12
+2026-03-15 18:35:09 | ENTRADA    | 115      | Camara               | Cant: 2
+2026-03-15 18:35:57 | SALIDA     | 115      | Camara               | Cant: 1
+2026-03-15 19:55:38 | SALIDA     | 102      | Silla                | Cant: 10
