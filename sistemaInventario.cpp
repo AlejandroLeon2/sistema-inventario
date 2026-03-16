@@ -45,7 +45,9 @@ void registrarMovimiento(int codigo, string nombre, string tipo, int cantidad) {
 void titulo() {
     setlocale(LC_ALL, "es_ES.UTF-8");
     system("cls");
-    cout << "\033[4m" << "Sistema de Inventario Empresarial" << "\033[0m" << endl<<endl;
+    cout << "\033[1m" << "=====================================" << "\033[0m" << endl;
+    cout << "\033[1m" << "  Sistema de Inventario Empresarial" << "\033[0m" << endl;
+    cout << "\033[1m" << "=====================================" << "\033[0m" << endl<<endl;
 }
 
 void pausar() {
@@ -113,11 +115,23 @@ void buscarPorStock(NodoProductos* cab) { //Busqueda Lineal
         return;
     }
     int buscar;
-    bool encontrado = false;
+    bool encontrado = false, optStock;
     NodoProductos* actual = cab;
 
-    cout << "\n==== Búsqueda Lineal por Stock ====" << endl;
-    cout << "¿Cuál es el stock que desea buscar?: "; cin>>buscar;
+    cout << "==== Búsqueda Lineal por Stock ====" << endl;
+    do{
+        optStock = true;
+        cout << "¿Cuál es el stock que desea buscar?: "; cin>>buscar;
+        if (!cin.fail() && buscar >= 0) break;
+        else {
+            cout<<"Ingrese un cantidad positiva o CERO"<<endl;
+            optStock = false;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    } while (!optStock);
+    
+    
     cout << endl << left
          << setw(10) << "Código"
          << setw(20) << "Nombre"
@@ -205,10 +219,20 @@ void buscarPorCodigo(NodoProductos* cab) {
         cout << "Lista vacía." << endl;
         return;
     }
-
     int codigoBuscar;
-    cout << "Ingrese el código a buscar: ";
-    cin >> codigoBuscar;
+    bool optCodigo;
+    
+    do{
+        optCodigo = true;
+        cout << "Ingrese el código a buscar: "; cin >> codigoBuscar;
+        if (!cin.fail() && codigoBuscar >= 0) break;
+        else {
+            cout<<"Ingrese un codigo correcto (Numeros positivos)"<<endl<<endl;
+            optCodigo = false;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    } while (!optCodigo);
 
     //puntero para recorrer la lista
     NodoProductos* actual = cab;
@@ -694,7 +718,18 @@ int main() {
             do {
                 titulo();
                 cout<<"=== Ingresar Producto ==="<<endl;
-                cout<<" Código de producto: "; cin>>vCodigo;
+                bool optCodigo, optPrecio, optStock;
+                do{
+                    optCodigo = true;
+                    cout<<" Código de producto: "; cin>>vCodigo;
+                    if (!cin.fail() && vCodigo >= 0) break;
+                    else {
+                    cout<<"Ingrese un codigo correcto (Numeros positivos)"<<endl<<endl;
+                    optCodigo = false;
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    }
+                } while (!optCodigo);
                 
                 NodoProductos *codigoRep = codigoRepetido(cab, vCodigo);
                 if (codigoRep != NULL) {
@@ -704,12 +739,35 @@ int main() {
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     cout<<" Nombre de producto: ";
                     getline(cin, vNombre); 
-                    cout<<" Precio de producto: "; cin>>vPrecio;
-                    cout<<" Cantidad de producto: "; cin>>vStock;
+
+                    do{
+                        optPrecio = true;
+                        cout<<" Precio de producto: "; cin>>vPrecio;
+                        if (!cin.fail() && vPrecio >= 0) break;
+                        else {
+                            cout<<"Ingrese un precio correcto (Numeros positivos)"<<endl<<endl;
+                            optPrecio = false;
+                            cin.clear();
+                            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        }
+                    } while (!optPrecio);
+                    
+                    do{
+                        optStock = true;
+                        cout<<" Cantidad de producto: "; cin>>vStock;
+                        if (!cin.fail() && vStock >= 0) break;
+                        else {
+                            cout<<"Ingrese un cantidad correcta (Numeros positivos)"<<endl<<endl;
+                            optStock = false;
+                            cin.clear();
+                            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        }
+                    } while (!optStock);
+
                     insertarProducto(cab, vCodigo, vNombre, vPrecio, vStock, cola);
                     guardarArchivo(vCodigo, vNombre, vPrecio, vStock);
                     registrarMovimiento(vCodigo, vNombre, "ENTRADA", vStock);
-                    cout<<"** Producto agregado correctamente **"<<endl;
+                    cout<<endl<<"** Producto agregado correctamente **"<<endl;
                    // cout<<"Código: "<<vCodigo<<"; Nombre: "<<vNombre<<"; Precio: S/."<<vPrecio<<"; Cantidad: "<<vStock<<endl;
                     cout << left << setw(11) << "Código" << setw(20) << "Nombre" << setw(12) << "Precio" << setw(10) << "Stock" << endl;
                     cout << left << setw(10) << vCodigo << setw(20) << vNombre <<"S/."<< setw(10) << vPrecio << setw(10) << vStock << endl;
@@ -778,6 +836,5 @@ int main() {
         }
     } while (optMenu != 7);
     
-
     return 0;
 }
