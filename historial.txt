@@ -2,7 +2,5 @@
 2026-03-15 18:35:09 | ENTRADA    | 115      | Camara               | Cant: 2
 2026-03-15 18:35:57 | SALIDA     | 115      | Camara               | Cant: 1
 2026-03-15 19:55:38 | SALIDA     | 102      | Silla                | Cant: 10
-2026-03-15 20:41:02 | SALIDA     | 102      | Silla                | Cant: 5
-2026-03-15 21:54:12 | ENTRADA    | 108      | Audifonos            | Cant: 3
-2026-03-15 22:25:17 | ENTRADA    | 0        |                      | Cant: 0
-2026-03-15 22:37:11 | ENTRADA    | 125      | Celular              | Cant: 4
+2026-03-15 20:26:38 | ENTRADA    | 123      | cama                 | Cant: 12
+2026-03-15 22:06:16 | ENTRADA    | 124      | sabana               | Cant: 12

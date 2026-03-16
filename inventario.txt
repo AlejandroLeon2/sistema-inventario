@@ -6,6 +6,5 @@
 106,mouse,120,12
 112,parlante,35,15
 115,Camara,120,4
-108,Audifonos,160,3
-0,,6.9513e-310,0
-125,Celular,425,4
+123,cama,123,12
+124,sabana,123,12
