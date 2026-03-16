@@ -16,9 +16,20 @@ struct NodoProductos {
     NodoProductos *next;
 };
 
+struct NodoMovimiento {
+    string fecha;
+    string tipo;     
+    int    codigo;
+    string nombre;
+    int    cantidad;
+    NodoMovimiento *next; 
+    NodoMovimiento *prev; 
+};
+
 
 void reescribirArchivo(NodoProductos* cab);
-void registrarMovimiento(int codigo, string nombre, string tipo, int cantidad);
+void registrarMovimiento(NodoMovimiento*& cabMov, NodoMovimiento*& colaMov,
+                         int codigo, string nombre, string tipo, int cantidad);
 
 string obtenerFechaHora() {
     time_t now = time(0);
@@ -29,23 +40,111 @@ string obtenerFechaHora() {
     return string(buf);
 }
 
-void registrarMovimiento(int codigo, string nombre, string tipo, int cantidad) {
+
+void registrarMovimiento(NodoMovimiento*& cabMov, NodoMovimiento*& colaMov,
+                         int codigo, string nombre, string tipo, int cantidad) {
+
+    NodoMovimiento* nuevo = new NodoMovimiento();
+    nuevo->fecha    = obtenerFechaHora();
+    nuevo->tipo     = tipo;
+    nuevo->codigo   = codigo;
+    nuevo->nombre   = nombre;
+    nuevo->cantidad = cantidad;
+    nuevo->next     = nullptr;
+    nuevo->prev     = nullptr;
+
+    if (cabMov == nullptr) {
+
+        nuevo->next = nuevo;
+        nuevo->prev = nuevo;
+        cabMov  = nuevo;
+        colaMov = nuevo;
+    } else {
+
+        nuevo->next     = cabMov;   
+        nuevo->prev     = colaMov; 
+        colaMov->next   = nuevo;   
+        cabMov->prev    = nuevo;   
+        colaMov         = nuevo;   
+    }
+
+   
     ofstream archivo("historial.txt", ios::app);
     if (archivo.is_open()) {
-        archivo << obtenerFechaHora() << " | " 
-                << left << setw(10) << tipo << " | "
-                << setw(8) << codigo << " | "
-                << setw(20) << nombre << " | "
-                << "Cant: " << cantidad << endl;
+        archivo << nuevo->fecha  << " | "
+                << left << setw(10) << nuevo->tipo    << " | "
+                << setw(8)  << nuevo->codigo  << " | "
+                << setw(20) << nuevo->nombre  << " | "
+                << "Cant: " << nuevo->cantidad << endl;
         archivo.close();
     }
+}
+
+
+void cargarHistorial(NodoMovimiento*& cabMov, NodoMovimiento*& colaMov) {
+    ifstream archivo("historial.txt");
+    if (!archivo.is_open()) return;
+
+    string linea;
+    while (getline(archivo, linea)) {
+        if (linea.empty()) continue;
+
+        stringstream ss(linea);
+        string fecha, tipo, codigoStr, nombre, cantStr;
+        getline(ss, fecha,     '|');
+        getline(ss, tipo,      '|');
+        getline(ss, codigoStr, '|');
+        getline(ss, nombre,    '|');
+        getline(ss, cantStr);
+
+
+        auto trim = [](string s) {
+            size_t a = s.find_first_not_of(" ");
+            size_t b = s.find_last_not_of(" ");
+            return (a == string::npos) ? "" : s.substr(a, b - a + 1);
+        };
+        fecha   = trim(fecha);
+        tipo    = trim(tipo);
+        nombre  = trim(nombre);
+
+        int codigo = 0, cantidad = 0;
+        try { codigo = stoi(trim(codigoStr)); } catch(...) {}
+        size_t pos = cantStr.find(':');
+        if (pos != string::npos)
+            try { cantidad = stoi(trim(cantStr.substr(pos + 1))); } catch(...) {}
+
+        NodoMovimiento* nuevo = new NodoMovimiento();
+        nuevo->fecha    = fecha;
+        nuevo->tipo     = tipo;
+        nuevo->codigo   = codigo;
+        nuevo->nombre   = nombre;
+        nuevo->cantidad = cantidad;
+        nuevo->next     = nullptr;
+        nuevo->prev     = nullptr;
+
+        if (cabMov == nullptr) {
+            nuevo->next = nuevo;
+            nuevo->prev = nuevo;
+            cabMov  = nuevo;
+            colaMov = nuevo;
+        } else {
+            nuevo->next   = cabMov;
+            nuevo->prev   = colaMov;
+            colaMov->next = nuevo;
+            cabMov->prev  = nuevo;
+            colaMov       = nuevo;
+        }
+    }
+    archivo.close();
 }
 
 
 void titulo() {
     setlocale(LC_ALL, "es_ES.UTF-8");
     system("cls");
-    cout << "\033[4m" << "Sistema de Inventario Empresarial" << "\033[0m" << endl<<endl;
+    cout << "\033[1m" << "=====================================" << "\033[0m" << endl;
+    cout << "\033[1m" << "  Sistema de Inventario Empresarial" << "\033[0m" << endl;
+    cout << "\033[1m" << "=====================================" << "\033[0m" << endl<<endl;
 }
 
 void pausar() {
@@ -113,11 +212,23 @@ void buscarPorStock(NodoProductos* cab) { //Busqueda Lineal
         return;
     }
     int buscar;
-    bool encontrado = false;
+    bool encontrado = false, optStock;
     NodoProductos* actual = cab;
 
-    cout << "\n==== Búsqueda Lineal por Stock ====" << endl;
-    cout << "¿Cuál es el stock que desea buscar?: "; cin>>buscar;
+    cout << "==== Búsqueda Lineal por Stock ====" << endl;
+    do{
+        optStock = true;
+        cout << "¿Cuál es el stock que desea buscar?: "; cin>>buscar;
+        if (!cin.fail() && buscar >= 0) break;
+        else {
+            cout<<"Ingrese un cantidad positiva o CERO"<<endl;
+            optStock = false;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    } while (!optStock);
+    
+    
     cout << endl << left
          << setw(10) << "Código"
          << setw(20) << "Nombre"
@@ -205,10 +316,20 @@ void buscarPorCodigo(NodoProductos* cab) {
         cout << "Lista vacía." << endl;
         return;
     }
-
     int codigoBuscar;
-    cout << "Ingrese el código a buscar: ";
-    cin >> codigoBuscar;
+    bool optCodigo;
+    
+    do{
+        optCodigo = true;
+        cout << "Ingrese el código a buscar: "; cin >> codigoBuscar;
+        if (!cin.fail() && codigoBuscar >= 0) break;
+        else {
+            cout<<"Ingrese un codigo correcto (Numeros positivos)"<<endl<<endl;
+            optCodigo = false;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+    } while (!optCodigo);
 
     //puntero para recorrer la lista
     NodoProductos* actual = cab;
@@ -412,7 +533,8 @@ void mostrarInventario(NodoProductos* cab) {
     } while (actual != cab); // para cuando dé la vuelta completa
 }
 
-void actualizarProducto (NodoProductos *&cab, NodoProductos *&codigoRep, int vCodigo, int vStock) {
+void actualizarProducto (NodoProductos *&cab, NodoProductos *&codigoRep, int vCodigo, int vStock,
+                         NodoMovimiento*& cabMov, NodoMovimiento*& colaMov) {
     //NodoProductos *codigoRep = buscarPorCodigo(cab, vCodigo);
     char optSiNo;
         cout<<" ** El código "<<codigoRep -> codigo<<" ya existe."<<endl<<endl;
@@ -426,7 +548,8 @@ void actualizarProducto (NodoProductos *&cab, NodoProductos *&codigoRep, int vCo
             codigoRep -> stock += cantidad;
             
             string tipo = (cantidad >= 0) ? "ENTRADA" : "SALIDA";
-            registrarMovimiento(codigoRep->codigo, codigoRep->nombre, tipo, (cantidad >= 0 ? cantidad : -cantidad));
+            registrarMovimiento(cabMov, colaMov, codigoRep->codigo, codigoRep->nombre, tipo,
+                                (cantidad >= 0 ? cantidad : -cantidad));
 
             cout<<endl<<"** Producto Actualizado **"<<endl;
             cout << left << setw(11) << "Código" << setw(20) << "Nombre" << setw(12) << "Precio" << setw(10) << "Stock" << endl;
@@ -600,26 +723,31 @@ void ordenarStock(NodoProductos *&cab) { //Merge Sort
     mostrarArreglo(arrLista, tam);
 }
 
-void historialMovimientos() { 
-    ifstream archivo("historial.txt");
-    if (!archivo.is_open()) {
+void historialMovimientos(NodoMovimiento* cabMov) {
+    if (cabMov == nullptr) {
         cout << "No hay historial de movimientos registrado." << endl;
         return;
     }
 
     cout << "=== HISTORIAL DE MOVIMIENTOS ===" << endl;
-    cout << left << setw(20) << "Fecha y Hora" << " | "
-         << setw(10) << "Tipo" << " | "
-         << setw(8) << "Código" << " | "
-         << setw(20) << "Nombre" << " | "
+    cout << left
+         << setw(20) << "Fecha y Hora" << " | "
+         << setw(10) << "Tipo"         << " | "
+         << setw(8)  << "Codigo"       << " | "
+         << setw(20) << "Nombre"       << " | "
          << "Cantidad" << endl;
     cout << string(80, '-') << endl;
 
-    string linea;
-    while (getline(archivo, linea)) {
-        cout << linea << endl;
-    }
-    archivo.close();
+    NodoMovimiento* actual = cabMov;
+    do {
+        cout << left
+             << setw(20) << actual->fecha
+             << " | " << setw(10) << actual->tipo
+             << " | " << setw(8)  << actual->codigo
+             << " | " << setw(20) << actual->nombre
+             << " | Cant: "       << actual->cantidad << endl;
+        actual = actual->next;
+    } while (actual != cabMov);
 }
 
 //funcion para liberar lista, evitando el memory leak
@@ -650,10 +778,14 @@ int main() {
     double vPrecio;
     string vNombre;
 
-    NodoProductos *cab = NULL;
-    NodoProductos *cola = NULL;
+    NodoProductos  *cab     = NULL;
+    NodoProductos  *cola    = NULL;
+
+    NodoMovimiento *cabMov  = nullptr;
+    NodoMovimiento *colaMov = nullptr;
 
     cargarInventario(cab, cola);
+    cargarHistorial(cabMov, colaMov);  
 
     do {
         titulo();
@@ -713,21 +845,55 @@ int main() {
             do {
                 titulo();
                 cout<<"=== Ingresar Producto ==="<<endl;
-                cout<<" Código de producto: "; cin>>vCodigo;
+                bool optCodigo, optPrecio, optStock;
+                do{
+                    optCodigo = true;
+                    cout<<" Código de producto: "; cin>>vCodigo;
+                    if (!cin.fail() && vCodigo >= 0) break;
+                    else {
+                    cout<<"Ingrese un codigo correcto (Numeros positivos)"<<endl<<endl;
+                    optCodigo = false;
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    }
+                } while (!optCodigo);
                 
                 NodoProductos *codigoRep = codigoRepetido(cab, vCodigo);
                 if (codigoRep != NULL) {
-                    actualizarProducto(cab, codigoRep, vCodigo, vStock);
+                    actualizarProducto(cab, codigoRep, vCodigo, vStock, cabMov, colaMov);
                     //continue;
                 } else {
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     cout<<" Nombre de producto: ";
                     getline(cin, vNombre); 
-                    cout<<" Precio de producto: "; cin>>vPrecio;
-                    cout<<" Cantidad de producto: "; cin>>vStock;
+
+                    do{
+                        optPrecio = true;
+                        cout<<" Precio de producto: "; cin>>vPrecio;
+                        if (!cin.fail() && vPrecio >= 0) break;
+                        else {
+                            cout<<"Ingrese un precio correcto (Numeros positivos)"<<endl<<endl;
+                            optPrecio = false;
+                            cin.clear();
+                            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        }
+                    } while (!optPrecio);
+                    
+                    do{
+                        optStock = true;
+                        cout<<" Cantidad de producto: "; cin>>vStock;
+                        if (!cin.fail() && vStock >= 0) break;
+                        else {
+                            cout<<"Ingrese un cantidad correcta (Numeros positivos)"<<endl<<endl;
+                            optStock = false;
+                            cin.clear();
+                            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        }
+                    } while (!optStock);
+
                     insertarProducto(cab, vCodigo, vNombre, vPrecio, vStock, cola);
                     guardarArchivo(vCodigo, vNombre, vPrecio, vStock);
-                    registrarMovimiento(vCodigo, vNombre, "ENTRADA", vStock);
+                    registrarMovimiento(cabMov, colaMov, vCodigo, vNombre, "ENTRADA", vStock);
                     cout<<"** Producto agregado correctamente **"<<endl;
                    // cout<<"Código: "<<vCodigo<<"; Nombre: "<<vNombre<<"; Precio: S/."<<vPrecio<<"; Cantidad: "<<vStock<<endl;
                     cout << left << setw(11) << "Código" << setw(20) << "Nombre" << setw(12) << "Precio" << setw(10) << "Stock" << endl;
@@ -780,7 +946,7 @@ int main() {
 
         case 6: //Historial de movimiento
             titulo();
-            historialMovimientos();
+            historialMovimientos(cabMov);
             pausar();
             break;
         
@@ -799,5 +965,6 @@ int main() {
     
     //Llamada a la función
     liberarLista(cab, cola);
+
     return 0;
 }   
