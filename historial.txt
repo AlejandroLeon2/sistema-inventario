@@ -4,3 +4,4 @@
 2026-03-15 19:55:38 | SALIDA     | 102      | Silla                | Cant: 10
 2026-03-15 20:26:38 | ENTRADA    | 123      | cama                 | Cant: 12
 2026-03-15 22:06:16 | ENTRADA    | 124      | sabana               | Cant: 12
+

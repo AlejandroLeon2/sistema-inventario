@@ -750,6 +750,25 @@ void historialMovimientos(NodoMovimiento* cabMov) {
     } while (actual != cabMov);
 }
 
+//funcion para liberar lista, evitando el memory leak
+void liberarLista(NodoProductos*& cab, NodoProductos*& cola) {
+
+    if (cab == NULL) return;
+
+    NodoProductos* actual = cab;
+    NodoProductos* siguiente;
+
+    do {
+        siguiente = actual->next;
+        delete actual;
+        actual = siguiente;
+
+    } while (actual != cab);
+
+    cab = NULL;
+    cola = NULL;
+}
+
 
 int main() {
     titulo();
@@ -944,5 +963,8 @@ int main() {
         }
     } while (optMenu != 7);
     
+    //Llamada a la función
+    liberarLista(cab, cola);
+
     return 0;
-}
+}   
