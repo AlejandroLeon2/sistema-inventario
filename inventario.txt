@@ -1,0 +1,10 @@
+101,Mesa,62,6
+109,Andamio,540,2
+105,Tablet,640,2
+104,Laptop,1980,4
+106,mouse,120,12
+112,parlante,35,15
+115,Camara,120,4
+123,cama,123,6
+124,sabana,123,12
+202,tabla,20,5
