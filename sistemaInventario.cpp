@@ -28,8 +28,7 @@ struct NodoMovimiento {
 
 
 void reescribirArchivo(NodoProductos* cab);
-void registrarMovimiento(NodoMovimiento*& cabMov, NodoMovimiento*& colaMov,
-                         int codigo, string nombre, string tipo, int cantidad);
+void registrarMovimiento(NodoMovimiento*& cabMov, NodoMovimiento*& colaMov, int codigo, string nombre, string tipo, int cantidad);
 
 string obtenerFechaHora() {
     time_t now = time(0);
@@ -41,8 +40,7 @@ string obtenerFechaHora() {
 }
 
 
-void registrarMovimiento(NodoMovimiento*& cabMov, NodoMovimiento*& colaMov,
-                         int codigo, string nombre, string tipo, int cantidad) {
+void registrarMovimiento(NodoMovimiento*& cabMov, NodoMovimiento*& colaMov, int codigo, string nombre, string tipo, int cantidad) {
 
     NodoMovimiento* nuevo = new NodoMovimiento();
     nuevo->fecha    = obtenerFechaHora();
@@ -79,7 +77,6 @@ void registrarMovimiento(NodoMovimiento*& cabMov, NodoMovimiento*& colaMov,
         archivo.close();
     }
 }
-
 
 void cargarHistorial(NodoMovimiento*& cabMov, NodoMovimiento*& colaMov) {
     ifstream archivo("historial.txt");
@@ -138,7 +135,6 @@ void cargarHistorial(NodoMovimiento*& cabMov, NodoMovimiento*& colaMov) {
     archivo.close();
 }
 
-
 void titulo() {
     setlocale(LC_ALL, "es_ES.UTF-8");
     system("cls");
@@ -177,15 +173,11 @@ void insertionSort(NodoProductos* arrLista[], int tam) {
 
     for (int i = 1; i < tam; i++) {
         NodoProductos* actual = arrLista[i];
-        int j = i - 1;
-
-        // desplazar elementos mayores hacia la derecha
+        int j = i - 1;        
         while (j >= 0 && aMinusculas(arrLista[j]->nombre) > aMinusculas(actual->nombre)) {
             arrLista[j + 1] = arrLista[j];
             j--;
         }
-
-        // insertar en su posición correcta
         arrLista[j + 1] = actual;
     }
 }
@@ -196,13 +188,11 @@ NodoProductos* codigoRepetido(NodoProductos* cab, int vCodigo) {
 
     do {
         if (actual -> codigo == vCodigo)
-            return actual; // encontrado
-
+            return actual;
         actual = actual->next;
-
     } while (actual != cab);
 
-    return NULL; // no encontrado
+    return NULL;
 }
 
 void buscarPorStock(NodoProductos* cab) { //Busqueda Lineal
@@ -276,7 +266,6 @@ void buscarPorNombre(NodoProductos* cab) { //Busqueda Binaria
     while (inicio <= fin) {
         int medio = inicio + (fin - inicio) / 2;
 
-        // convertir nombre del medio a minúsculas para comparar
         string nombreMedio = arrLista[medio]->nombre;
         nombreMedio = aMinusculas(nombreMedio);
 
@@ -300,7 +289,7 @@ void buscarPorNombre(NodoProductos* cab) { //Busqueda Binaria
             inicio = medio + 1; // buscar en derecha
 
         } else {
-            fin = medio - 1;    // buscar en izquierda
+            fin = medio - 1;  // buscar en izquierda
         }
     }
 
@@ -308,10 +297,8 @@ void buscarPorNombre(NodoProductos* cab) { //Busqueda Binaria
         cout << "No se encontró el producto: " << buscar << endl;
 }
 
-
 void buscarPorCodigo(NodoProductos* cab) {
 
-    //Verificar si la lista está vacía
     if (cab == NULL) {
         cout << "Lista vacía." << endl;
         return;
@@ -331,7 +318,6 @@ void buscarPorCodigo(NodoProductos* cab) {
         }
     } while (!optCodigo);
 
-    //puntero para recorrer la lista
     NodoProductos* actual = cab;
     bool encontrado = false; 
 
@@ -357,12 +343,10 @@ void buscarPorCodigo(NodoProductos* cab) {
             break;
         }
 
-        //Avanzar al siguiente nodo
         actual = actual->next;
 
     } while (actual != cab); 
 
-    //Si no se encontró mostramos..
     if (!encontrado) {
         cout << "No se encontró el producto con código: "
              << codigoBuscar << endl;
@@ -387,31 +371,29 @@ void eliminarProducto(NodoProductos*& cab, NodoProductos*& cola) {
 
         if (actual->codigo == codigoEliminar) {
 
-            if (cab == cola) { // solo un nodo
+            if (cab == cola) {
                 delete actual;
                 cab = NULL;
                 cola = NULL;
             }
 
-            else if (actual == cab) { // eliminar primero
+            else if (actual == cab) {
                 cab = cab->next;
                 cola->next = cab;
                 delete actual;
             }
 
-            else if (actual == cola) { // eliminar último
+            else if (actual == cola) {
                 anterior->next = cab;
                 cola = anterior;
                 delete actual;
             }
 
-            else { // eliminar intermedio
+            else {
                 anterior->next = actual->next;
                 delete actual;
             }
-
             reescribirArchivo(cab);
-
             cout << "Producto eliminado correctamente." << endl;
             return;
         }
@@ -475,24 +457,16 @@ void cargarInventario(NodoProductos*& cab, NodoProductos*& cola) {
 
     string linea;
 
-    while (getline(archivo, linea)) {  // lee línea completa
+    while (getline(archivo, linea)) {
 
-        stringstream ss(linea);        // envuelve la línea para leerla
-        /*
-        int    vCodigo, vStock;
-        string vNombre;
-        double vPrecio;
+        stringstream ss(linea);
+        string vCodigoStr, vNombre, vPrecioStr, vStockStr;
 
-        ss >> vCodigo >> vNombre >> vPrecio >> vStock;
-        */
-       string vCodigoStr, vNombre, vPrecioStr, vStockStr;
+        getline(ss, vCodigoStr, ',');
+        getline(ss, vNombre,    ',');
+        getline(ss, vPrecioStr, ',');
+        getline(ss, vStockStr);
 
-        getline(ss, vCodigoStr, ',');  // lee hasta la primera coma
-        getline(ss, vNombre,    ',');  // lee hasta la segunda coma
-        getline(ss, vPrecioStr, ',');  // lee hasta la tercera coma
-        getline(ss, vStockStr);        // lee el resto
-
-        // convertir strings a sus tipos
         int    vCodigo = stoi(vCodigoStr);
         double vPrecio = stod(vPrecioStr);
         int    vStock  = stoi(vStockStr);
@@ -513,7 +487,6 @@ void mostrarInventario(NodoProductos* cab) {
 
     NodoProductos* actual = cab;
 
-    //cout << "\n===== INVENTARIO =====" << endl;
     cout << left
          << setw(11) << "Código"
          << setw(20) << "Nombre"
@@ -530,17 +503,15 @@ void mostrarInventario(NodoProductos* cab) {
 
         actual = actual->next;
 
-    } while (actual != cab); // para cuando dé la vuelta completa
+    } while (actual != cab); 
 }
 
-void actualizarProducto (NodoProductos *&cab, NodoProductos *&codigoRep, int vCodigo, int vStock,
-                         NodoMovimiento*& cabMov, NodoMovimiento*& colaMov) {
-    //NodoProductos *codigoRep = buscarPorCodigo(cab, vCodigo);
+void actualizarProducto (NodoProductos *&cab, NodoProductos *&codigoRep, int vCodigo, int vStock, NodoMovimiento*& cabMov, NodoMovimiento*& colaMov) {
+
     char optSiNo;
         cout<<" ** El código "<<codigoRep -> codigo<<" ya existe."<<endl<<endl;
         cout << left << setw(11) << "Código" << setw(20) << "Nombre" << setw(12) << "Precio" << setw(10) << "Stock" << endl;
         cout << left << setw(10) << codigoRep -> codigo << setw(20) << codigoRep -> nombre <<"S/."<< setw(10) << codigoRep -> precio << setw(10) << codigoRep -> stock << endl;
-        //cout<<" Nombre: "<<codigoRep -> nombre<<"; Precio: S/."<<codigoRep -> precio<<"; Cantidad: "<<codigoRep -> stock<<endl;
         cout<<endl<<"¿Desea actualizar el stock? (s/n): "; cin>>optSiNo;
         if (optSiNo == 's' || optSiNo == 'S') {
             int cantidad;
@@ -561,8 +532,7 @@ void actualizarProducto (NodoProductos *&cab, NodoProductos *&codigoRep, int vCo
         }
 }
 
-
-void quickSort(NodoProductos* arrLista[], int inicio, int fin) {
+void quickSort(NodoProductos* arrLista[], int inicio, int fin) { //Precio
     if (inicio < fin) {
 
         double pivote = arrLista[fin]->precio;
@@ -639,11 +609,15 @@ void merge(NodoProductos* arrLista[], int inicio, int medio, int fin) {
         k++;
     }
 
-    // Copiar elementos restantes de izquierda si los hay
-    while (i < tamIz) { arrLista[k] = arrIzquierda[i]; i++; k++; }
+    while (i < tamIz) { 
+        arrLista[k] = arrIzquierda[i]; 
+        i++; k++; 
+    }
 
-    // Copiar elementos restantes de derecha si los hay
-    while (j < tamDe) { arrLista[k] = arrDerecha[j];   j++; k++; }
+    while (j < tamDe) { 
+        arrLista[k] = arrDerecha[j];   
+        j++; k++; 
+    }
 }
 
 void mergeSort(NodoProductos* arrLista[], int inicio, int fin) {
@@ -657,7 +631,6 @@ void mergeSort(NodoProductos* arrLista[], int inicio, int fin) {
 
 void mostrarArreglo(NodoProductos* arrLista[], int cantidad) {
 
-    //cout << "==== Ordenado por precio (Quick Sort) ====" << endl;
     cout << left
          << setw(11) << "Código"
          << setw(20) << "Nombre"
@@ -809,7 +782,7 @@ int main() {
                     ordenarStock(cab);
                     pausar();
                     break;
-                case 3: //Ver por stock
+                case 3: //Ver por nombre
                     titulo();
                     ordenarNombre(cab);
                     pausar();
@@ -817,7 +790,6 @@ int main() {
                 default:
                     break;
                 }
-                //pausar();
             } while (optInventario != 4);
             
             break;
@@ -876,7 +848,6 @@ int main() {
                     guardarArchivo(vCodigo, vNombre, vPrecio, vStock);
                     registrarMovimiento(cabMov, colaMov, vCodigo, vNombre, "ENTRADA", vStock);
                     cout<<"** Producto agregado correctamente **"<<endl;
-                   // cout<<"Código: "<<vCodigo<<"; Nombre: "<<vNombre<<"; Precio: S/."<<vPrecio<<"; Cantidad: "<<vStock<<endl;
                     cout << left << setw(11) << "Código" << setw(20) << "Nombre" << setw(12) << "Precio" << setw(10) << "Stock" << endl;
                     cout << left << setw(10) << vCodigo << setw(20) << vNombre <<"S/."<< setw(10) << vPrecio << setw(10) << vStock << endl;
                         
